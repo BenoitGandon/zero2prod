@@ -3,6 +3,18 @@ name = "zero2prod"
 version = "0.1.0"
 edition = "2024"
 
+[lib]
+path = "src/lib.rs"
+
+[[bin]]
+path = "src/main.rs"
+name = "zero2prod"
+
+[dependencies]
+actix-web = "4"
+reqwest = "0.12.15"
+tokio = { version = "1", features = ["macros", "rt-multi-thread"] }
+
 # ```
 # cargo install -f cargo-binutils
 # rustup component add llvm-tools-preview
@@ -12,7 +24,3 @@ rustflags = ["-C", "link-arg=-fuse-ld=lld"]
 
 [target.x86_64-pc-windows-gnu]
 rustflags = ["-C", "link-arg=-fuse-ld=lld"]
-
-[dependencies]
-actix-web = "4"
-tokio = { version = "1", features = ["macros", "rt-multi-thread"] }
