@@ -1,12 +1,12 @@
 use std::net::TcpListener;
+use zero2prod::startup::run;
 
 async fn spawn_app() -> String {
-    let listener = TcpListener::bind("127.0.0.1:0")
-        .expect("Failed to bind random port");
+    let listener = TcpListener::bind("127.0.0.1:0").expect("Failed to bind random port");
 
     // We retrieve the port assigned to us by the OS
     let port = listener.local_addr().unwrap().port();
-    let server = zero2prod::run(listener).expect("Failed to bind address");
+    let server = run(listener).expect("Failed to bind address");
     let _ = tokio::spawn(server);
     // We return the application address to the caller!
     format!("http://127.0.0.1:{}", port)
@@ -78,4 +78,21 @@ async fn subscribe_returns_a_400_when_data_is_missing() {
             error_message
         );
     }
+}
+
+#[tokio::test]
+async fn subscribe_returns_a_200_when_additionnal_data() {
+    let app_address = spawn_app().await;
+    let client = reqwest::Client::new();
+    // Act
+    let body = "name=le%20guin&email=ursula_le_guin%40gmail.com&add_data=extra";
+    let response = client
+        .post(&format!("{}/subscriptions", &app_address))
+        .header("Content-Type", "application/x-www-form-urlencoded")
+        .body(body)
+        .send()
+        .await
+        .expect("Failed to execute request.");
+    // Assert
+    assert_eq!(200, response.status().as_u16());
 }
